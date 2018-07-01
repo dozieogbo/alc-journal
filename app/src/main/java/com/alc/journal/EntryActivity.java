@@ -1,5 +1,6 @@
 package com.alc.journal;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alc.journal.models.Entry;
+import com.alc.journal.viewmodels.EntryViewModel;
+import com.alc.journal.viewmodels.EntryViewModelFactory;
 
 import java.util.Date;
 
@@ -76,19 +79,26 @@ public class EntryActivity extends AppCompatActivity {
             isAdding = true;
             toggleEdit(true);
         } else {
-            int entryId = getIntent().getIntExtra(EXTRA_ID, 0);
-            appDatabase.entryDAO().getEntryById(entryId)
-                    .observe(this, entry -> {
-                        if (entry != null) {
-                            currentEntry = entry;
-                            mTitleEditText.setText(entry.getTitle());
-                            mTitleTextView.setText(entry.getTitle());
-                            mContentTextView.setText(entry.getContent());
-                            mContentEditText.setText(entry.getContent());
-                        }
-                    });
+            getEntry();
             toggleEdit(false);
         }
+    }
+
+    private void getEntry() {
+        int entryId = getIntent().getIntExtra(EXTRA_ID, 0);
+        EntryViewModelFactory factory = new EntryViewModelFactory(appDatabase, entryId);
+        EntryViewModel viewModel = ViewModelProviders.of(this, factory)
+                .get(EntryViewModel.class);
+        viewModel.getEntry()
+                .observe(this, entry -> {
+                    if (entry != null) {
+                        currentEntry = entry;
+                        mTitleEditText.setText(entry.getTitle());
+                        mTitleTextView.setText(entry.getTitle());
+                        mContentTextView.setText(entry.getContent());
+                        mContentEditText.setText(entry.getContent());
+                    }
+                });
     }
 
     private void initializeViews() {
@@ -128,27 +138,6 @@ public class EntryActivity extends AppCompatActivity {
         }
     }
 
-    @NonNull
-    private CompletableObserver getOnSaveObserver() {
-        return new CompletableObserver() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                disposables.add(d);
-            }
-
-            @Override
-            public void onComplete() {
-                Helper.showAlert(EntryActivity.this, "Entry saved successfully.");
-                onBackPressed();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Helper.showAlert(EntryActivity.this, "An error occurred while saving: " + e.getMessage());
-            }
-        };
-    }
-
     private void createNew(String title, String content) {
         Entry entry = new Entry();
         entry.setTitle(title);
@@ -183,9 +172,44 @@ public class EntryActivity extends AppCompatActivity {
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribeWith(getOnDeleteObserver()))
-                .setNegativeButton("No", (dialogInterface, i) -> {})
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                })
                 .create();
         warningDialog.show();
+    }
+
+    private void toggleEdit(boolean isEditing) {
+        mEditingLayout.setVisibility(isEditing ? View.VISIBLE : View.GONE);
+        mViewingLayout.setVisibility(isEditing ? View.GONE : View.VISIBLE);
+        mTitleEditText.setVisibility(isEditing ? View.VISIBLE : View.GONE);
+        mTitleTextView.setVisibility(isEditing ? View.GONE : View.VISIBLE);
+        mContentEditText.setVisibility(isEditing ? View.VISIBLE : View.GONE);
+        mContentTextView.setVisibility(isEditing ? View.GONE : View.VISIBLE);
+
+        if(isEditing){
+            mTitleEditText.requestFocus();
+        }
+    }
+    
+    @NonNull
+    private CompletableObserver getOnSaveObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                disposables.add(d);
+            }
+
+            @Override
+            public void onComplete() {
+                Helper.showAlert(EntryActivity.this, "Entry saved successfully.");
+                onBackPressed();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Helper.showAlert(EntryActivity.this, "An error occurred while saving: " + e.getMessage());
+            }
+        };
     }
 
     private CompletableObserver getOnDeleteObserver() {
@@ -210,15 +234,5 @@ public class EntryActivity extends AppCompatActivity {
     private void onDeleted() {
         Helper.showAlert(EntryActivity.this, "Entry was deleted successfully.");
         onBackPressed();
-    }
-
-    private void toggleEdit(boolean isEditing) {
-        mEditingLayout.setVisibility(isEditing ? View.VISIBLE : View.GONE);
-        mViewingLayout.setVisibility(isEditing ? View.GONE : View.VISIBLE);
-        mTitleEditText.setVisibility(isEditing ? View.VISIBLE : View.GONE);
-        mTitleTextView.setVisibility(isEditing ? View.GONE : View.VISIBLE);
-        mContentEditText.setVisibility(isEditing ? View.VISIBLE : View.GONE);
-        mContentTextView.setVisibility(isEditing ? View.GONE : View.VISIBLE);
-
     }
 }

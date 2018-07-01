@@ -1,5 +1,6 @@
 package com.alc.journal;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -7,8 +8,10 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.alc.journal.models.Entry;
+import com.alc.journal.viewmodels.HomeViewModel;
 
 import java.util.ArrayList;
 
@@ -26,24 +29,33 @@ public class HomeActivity extends AppCompatActivity implements EntryAdapter.Item
 
     private Disposable mDisposable;
 
+    private LinearLayout mEmptyLayout;
+
+    private RecyclerView mEntryRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         instantiateDb();
+        instantiateEmpty();
         instantiateList();
+    }
+
+    private void instantiateEmpty() {
+        mEmptyLayout = findViewById(R.id.layout_empty);
     }
 
     @Override
     protected void onDestroy() {
-        if(mDisposable != null) {
+        if (mDisposable != null) {
             mDisposable.dispose();
         }
         super.onDestroy();
     }
 
     private void instantiateList() {
-        RecyclerView mEntryRecyclerView = findViewById(R.id.recycler_view_entries);
+        mEntryRecyclerView = findViewById(R.id.recycler_view_entries);
         DividerItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         mEntryRecyclerView.addItemDecoration(itemDecoration);
 
@@ -52,8 +64,23 @@ public class HomeActivity extends AppCompatActivity implements EntryAdapter.Item
         mEntryRecyclerView.setAdapter(mEntryAdapter);
         mEntryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        appDatabase.entryDAO().getEntries()
-                .observe(this, entries -> mEntryAdapter.setItems(entries));
+        retrieveEntries();
+    }
+
+    private void retrieveEntries() {
+        HomeViewModel viewModel = ViewModelProviders.of(this)
+                .get(HomeViewModel.class);
+        viewModel.getEntries()
+                .observe(this, entries -> {
+                    if(entries != null) {
+                        int entrySize = entries.size();
+
+                        mEntryRecyclerView.setVisibility(entrySize > 0 ? View.VISIBLE : View.GONE);
+                        mEmptyLayout.setVisibility(entrySize == 0 ? View.VISIBLE : View.GONE);
+                        
+                        mEntryAdapter.setItems(entries);
+                    }
+                });
     }
 
     private void instantiateDb() {
@@ -76,10 +103,11 @@ public class HomeActivity extends AppCompatActivity implements EntryAdapter.Item
                 .setMessage("Are you sure you want to delete this entry?")
                 .setPositiveButton("Yes", (dialogInterface, i) ->
                         Completable.fromAction(() -> appDatabase.entryDAO().deleteEntry(entry))
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(getOnDeleteObserver()))
-                .setNegativeButton("No", (dialogInterface, i) -> {})
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(getOnDeleteObserver()))
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                })
                 .create();
         warningDialog.show();
     }

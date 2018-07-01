@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -22,11 +23,14 @@
                 android:layout_marginBottom="@dimen/space_normal"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/title_size"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:visibility="gone"/>
             <EditText
                 android:id="@+id/text_title_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_normal"
+                android:background="@android:color/transparent"
                 android:hint="@string/text_title_hint"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/title_size"
@@ -35,89 +39,80 @@
                 android:id="@+id/text_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/entry_summary_size"/>
+                android:textSize="@dimen/entry_summary_size"
+                android:visibility="gone"/>
             <EditText
                 android:id="@+id/text_body_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
                 android:hint="@string/text_content_hint"
                 android:textSize="@dimen/entry_summary_size"/>
         </LinearLayout>
     </ScrollView>
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/lightGrey"
+        android:background="@android:color/transparent"
+        android:baselineAligned="false"
         android:gravity="end">
         <LinearLayout
             android:id="@+id/layout_editing"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
                 android:id="@+id/button_save"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:background="@android:color/transparent"
+                android:layout_weight="1"
                 android:contentDescription="@string/action_save"
-                android:drawableEnd="@drawable/ic_check"
-                android:drawablePadding="@dimen/space_tiny"
-                android:drawableRight="@drawable/ic_check"
                 android:onClick="save"
                 android:padding="@dimen/space_tiny"
-                android:text="@string/action_save"
-                android:textColor="@color/colorAccent"/>
+                android:text="@string/action_save"/>
             <Button
                 android:id="@+id/button_clear"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:background="@android:color/transparent"
+                android:layout_weight="1"
                 android:contentDescription="@string/action_cancel"
-                android:drawableEnd="@drawable/ic_clear"
-                android:drawablePadding="@dimen/space_tiny"
-                android:drawableRight="@drawable/ic_clear"
                 android:onClick="cancel"
                 android:padding="@dimen/space_tiny"
-                android:text="@string/action_cancel"
-                android:textColor="@android:color/black" />
+                android:text="@string/action_cancel" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/layout_viewing"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
             <Button
                 android:id="@+id/button_edit"
-                android:layout_width="wrap_content"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:background="@android:color/transparent"
+                android:layout_weight="1"
                 android:contentDescription="@string/action_edit"
-                android:drawableEnd="@drawable/ic_edit"
-                android:drawablePadding="@dimen/space_tiny"
-                android:drawableRight="@drawable/ic_edit"
                 android:onClick="edit"
                 android:padding="@dimen/space_tiny"
-                android:text="@string/action_edit"
-                android:textColor="@color/colorAccent" />
+                android:text="@string/action_edit" />
             <Button
                 android:id="@+id/button_delete"
-                android:layout_width="wrap_content"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:background="@android:color/transparent"
+                android:layout_weight="1"
                 android:contentDescription="@string/action_delete"
-                android:drawableEnd="@drawable/ic_delete"
-                android:drawablePadding="@dimen/space_tiny"
-                android:drawableRight="@drawable/ic_delete"
                 android:onClick="delete"
                 android:padding="@dimen/space_tiny"
                 android:text="@string/action_delete"
                 />
         </LinearLayout>
 
-    </LinearLayout>
+    </FrameLayout>
 </LinearLayout>
 

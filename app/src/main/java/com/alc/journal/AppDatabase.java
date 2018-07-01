@@ -7,7 +7,7 @@ import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 
 import com.alc.journal.daos.EntryDAO;
-import com.alc.journal.models.Converters;
+import com.alc.journal.models.DateConverter;
 import com.alc.journal.models.Entry;
 
 /**
@@ -15,14 +15,14 @@ import com.alc.journal.models.Entry;
  */
 
 @Database(entities = {Entry.class}, version = 1)
-@TypeConverters({Converters.class})
+@TypeConverters({DateConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
     private static final String TAG = AppDatabase.class.getSimpleName();
     private static final Object LOCK = new Object();
     private static final String DATABASE_NAME = "app_database";
     private static AppDatabase sInstance;
 
-    static AppDatabase getInstance(Context context){
+    public static AppDatabase getInstance(Context context){
         if(sInstance == null){
             synchronized (LOCK){
                 sInstance = Room
