@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="space_normal">16dp</dimen>
+    <dimen name="space_tiny">8dp</dimen>
+    <dimen name="title_size">20sp</dimen>
+    <dimen name="entry_summary_size">16sp</dimen>
+</resources>
